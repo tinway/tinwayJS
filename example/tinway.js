@@ -2,6 +2,7 @@
   'use strict'
   if (typeof(tinway) === 'undefined') {
       window.tinway = () => {
+        //   console.log(mod);
           return mod
       }
   }
@@ -313,9 +314,28 @@ let createDOMNode = (dom) => {
 
   if (dom.tagName === 'template') {
 
-      newEl = document.createElement('div')
 
-      loadHtml(dom.attributes.view,function (d) {
+    //   let xhr = new XMLHttpRequest(),doc = document
+//   xhr.responseType = 'blob'
+//   xhr.open('GET', pathToJSFile+'.js', true);
+//   xhr.onload = function () {
+//       let script = doc.createElement('script'),src = URL.createObjectURL(xhr.response)
+//       script.type="module"
+//       script.src = src
+//       doc.body.appendChild(script)
+
+
+newEl = document.createElement('div')
+console.log(dom.attributes.modele);
+import(dom.attributes.modele)
+      .then(module => {
+          console.log(module.default);
+
+          if (module.default.data) {
+              getData['test'] = module.default.data
+          }
+
+      loadHtml(module.default.view,function (d) {
 
           dom.children = htmlParser(d).children
 
@@ -323,11 +343,19 @@ let createDOMNode = (dom) => {
 
       })
 
+
+      })
+      .catch(err => {
+        // main.textContent = err.message;
+      });
+
+
   } else {
       
       newEl = document.createElement(dom.tagName)  
   
   }
+
 
   return createNewElement(newEl,dom)
 
@@ -391,23 +419,27 @@ let updateNode = (parent, oldnode, newnode, index=0) => {
 }
 
 let importJs = ({view,attributes},pathToJSFile) => {
-  let xhr = new XMLHttpRequest(),doc = document
-  xhr.responseType = 'blob'
-  xhr.open('GET', pathToJSFile+'.js', true);
-  xhr.onload = function () {
-      let script = doc.createElement('script'),src = URL.createObjectURL(xhr.response)
-      script.src = src
-      doc.body.appendChild(script)
+//   let xhr = new XMLHttpRequest(),doc = document
+//   xhr.responseType = 'blob'
+//   xhr.open('GET', pathToJSFile+'.js', true);
+//   xhr.onload = function () {
+//       let script = doc.createElement('script'),src = URL.createObjectURL(xhr.response)
+//       script.type="module"
+//       script.src = src
+//       doc.body.appendChild(script)
       loadHtml(view,function (d) {
           temp = null
           let root = document.getElementById('app')
           temp = htmlParser(d,attributes)
+          while (root.hasChildNodes()) {
+            root.removeChild(root.firstChild);
+        }
+          console.log(root);
           updateNode(root,null,temp)
-          console.log(temp);
           change()
       })
-  };
-  xhr.send()
+//   };
+//   xhr.send()
 }
 
 let run = ({view,module,attributes,js,dataName,setData}) => {
